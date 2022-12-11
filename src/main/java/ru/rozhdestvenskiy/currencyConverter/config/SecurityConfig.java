@@ -30,10 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .anyRequest().authenticated()
                 .and()
-                .httpBasic()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .formLogin().permitAll();
         return http.build();
     }
 

@@ -9,6 +9,7 @@ import ru.rozhdestvenskiy.currencyConverter.model.User;
 import ru.rozhdestvenskiy.currencyConverter.repository.UserRepository;
 import ru.rozhdestvenskiy.currencyConverter.security.UserDetailsImp;
 
+
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
