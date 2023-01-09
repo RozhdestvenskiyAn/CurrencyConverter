@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.math.RoundingMode.HALF_UP;
 import static java.time.LocalDate.*;
 import static java.time.format.DateTimeFormatter.*;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -45,10 +46,9 @@ public class ParseService {
     }
 
     @Transactional
-    public void parseCurrency() {
+    public List<Currency> parseCurrency() {
 
         log.info("Getting an xml file with a list of currencies");
-
         List<Currency> currencies = new ArrayList<>();
 
         try {
@@ -74,6 +74,7 @@ public class ParseService {
         } catch (Exception ex) {
             log.error(ex.getMessage());
         }
+        return currencies;
     }
 
     @Transactional
@@ -86,8 +87,7 @@ public class ParseService {
         try {
             Document doc = getXML();
 
-            LocalDate currentDate = parse(doc.getDocumentElement().getAttribute("Date"), ofPattern("dd.MM.yyyy"));
-
+            LocalDate date = parse(doc.getDocumentElement().getAttribute("Date"), ofPattern("dd.MM.yyyy"));
             NodeList nodeList = doc.getElementsByTagName("Valute");
 
             for (int i = 0; i < nodeList.getLength(); i++) {
@@ -96,15 +96,19 @@ public class ParseService {
 
                     Element elem = (Element) node;
 
-                    CurrencyRate currencyRate = createCurrencyRate(elem, currentDate);
+                    CurrencyRate currencyRate = createCurrencyRate(elem, date);
                     log.info("The {} exchange rate was created on {}", currencyRate.getCurrency().getCharCode(), currencyRate.getDate());
 
                     currencyRates.add(currencyRate);
                     log.info("The {} exchange rate was added to list", currencyRate.getCurrency().getCharCode());
                 }
             }
+
+            Currency currencyRU = currencyRepository.findById(810).orElseThrow(CurrencyNotFoundException::new);
+            currencyRates.add(new CurrencyRate(LocalDate.now(), currencyRU, BigDecimal.ONE));
+
             currencyRateRepository.saveAll(currencyRates);
-            log.info("Saving the list of exchange rate on {}", currentDate);
+            log.info("Saving the list of exchange rate on {}", date);
         } catch (Exception ex) {
             log.error(ex.getMessage());
         }
@@ -124,7 +128,7 @@ public class ParseService {
                 elem.getElementsByTagName("CharCode").item(0).getTextContent(),
                 elem.getElementsByTagName("Name").item(0).getTextContent());
     }
-    private CurrencyRate createCurrencyRate(Element elem, LocalDate currentDate) {
+    private CurrencyRate createCurrencyRate(Element elem, LocalDate date) {
 
         int numCode = Integer.parseInt(elem.getElementsByTagName("NumCode").item(0).getTextContent());
         Currency currency = currencyRepository.findById(numCode).orElseThrow(CurrencyNotFoundException::new);
@@ -132,10 +136,11 @@ public class ParseService {
         BigDecimal value =  new BigDecimal(elem.getElementsByTagName("Value")
                 .item(0).getTextContent()
                 .replace(",", "."));
-        int nominal = Integer.parseInt(elem.getElementsByTagName("Nominal").item(0).getTextContent());
-        value = value.divide(new BigDecimal(nominal));
 
-        return new CurrencyRate(currentDate, currency, value);
+        int nominal = Integer.parseInt(elem.getElementsByTagName("Nominal").item(0).getTextContent());
+        value = value.divide(new BigDecimal(nominal),4, HALF_UP );
+
+        return new CurrencyRate(date, currency, value);
     }
 }
 

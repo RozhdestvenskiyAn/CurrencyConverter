@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Currency converter</title>
+</head>
+<body>
+<h1>Конвертер</h1>
+<br>
+<table>
+    <form th:method="GET" th:action="@{/history/params}" th:object="${filterHistoryDto}">
+        <input type="date" th:name="date" th:field="*{date}"/>
+        <select th:name="fromCurrencyNumCode" th:field="*{fromCurrencyNumCode}">
+            <option th:each="currency : ${currencies}"
+                    th:value="${currency.getNumCode()}"
+                    th:text="${currency.getCharCode() + ' (' + currency.getName() + ')'}">
+            </option>
+        </select>
+        <select th:name="toCurrencyNumCode" th:field="*{toCurrencyNumCode}">
+            <option th:each="currency : ${currencies}"
+                    th:value="${currency.getNumCode()}"
+                    th:text="${currency.getCharCode() + ' (' + currency.getName() + ')'}">
+            </option>
+        </select>
+        <input type="submit" value="Искать">
+    </form>
+    <form action="/history">
+        <input type="submit" value="Сброс">
+    </form>
+
+    <tr>
+        <th>Исходная валюта</th>
+        <th>Целевая валюта</th>
+        <th>Исходная сумма</th>
+        <th>Целевая сумма</th>
+        <th>Дата</th>
+    </tr> <!--ряд с ячейками заголовков-->
+
+    <tr th:each="history : ${historyList}">
+        <td th:text="${history.getConvert().getFromCurrency().getCharCode()}"></td>
+        <td th:text="${history.getConvert().getToCurrency().getCharCode()}"></td>
+        <td th:text="${history.getConvert().getAmountFrom()}"></td>
+        <td th:text="${history.getConvert().getAmountTo()}"></td>
+        <td th:text="${history.date}"></td>
+    </tr> <!--ряд с ячейками тела таблицы-->
+</table>
+</body>
+</html>

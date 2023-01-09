@@ -1,10 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Currency converter</title>
 </head>
 <body>
-    <h1>Currency converter</h1>
+<h1>Конвертер</h1>
+<br>
+<form th:method="POST" th:action="@{/}" th:object="${ConvertDto}">
+    <select th:field="*{fromCurrency.numCode}">
+        <option th:each="currency : ${currencies}"
+                th:value="${currency.getNumCode()}"
+                th:text="${currency.getCharCode() + ' (' + currency.getName() + ')'}">
+        </option>
+    </select>
+    <select th:field="*{toCurrency.numCode}">
+        <option th:each="currency : ${currencies}"
+                th:value="${currency.getNumCode()}"
+                th:text="${currency.getCharCode() + ' (' + currency.getName() + ')'}">
+        </option>
+    </select>
+    <br>
+    <br>
+    <input type="text" th:field="*{amountFrom}">
+    <input type="text" th:field="*{amountTo}">
+    <br>
+    <input type="submit" value="Конвертировать">
+</form>
 </body>
 </html>

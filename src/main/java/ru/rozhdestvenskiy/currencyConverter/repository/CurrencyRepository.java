@@ -6,4 +6,5 @@ import ru.rozhdestvenskiy.currencyConverter.model.Currency;
 
 @Repository
 public interface CurrencyRepository extends JpaRepository<Currency, Integer> {
+
 }

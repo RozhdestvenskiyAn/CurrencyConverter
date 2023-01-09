@@ -2,6 +2,8 @@ package ru.rozhdestvenskiy.currencyConverter.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -16,6 +18,9 @@ public class User {
 
     @Column(name = "password")
     private String password;
+
+    @OneToMany(mappedBy = "user")
+    private List<HistoryConvert> historyConverts;
 
     public User(String login, String password) {
         this.login = login;
@@ -47,5 +52,21 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<HistoryConvert> getHistoryConverts() {
+        return historyConverts;
+    }
+
+    public void setHistoryConverts(List<HistoryConvert> historyConverts) {
+        this.historyConverts = historyConverts;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                '}';
     }
 }
